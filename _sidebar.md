@@ -3,3 +3,4 @@
 - [Module 2: Getting Started with Cowork](/02-cowork/)
 - [Module 3: Introduction to Agents](/03-agents/)
 - [Final Quiz](quiz.html)
+- [About Me](about.md)
