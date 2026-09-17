@@ -511,7 +511,20 @@ document.getElementById('retakeBtn').onclick = () => {
   render();
 };
 
-render();
+function showLoadError(err) {
+  const msg = (err && err.message) ? err.message : 'unknown error';
+  quizArea.innerHTML = '<p style="color:#b0362a;">Something went wrong loading the quiz (' + msg + '). Try a hard refresh: Ctrl+Shift+R on Windows/Linux, or Cmd+Shift+R on Mac. If that does not fix it, reload this page.</p>';
+}
+
+window.addEventListener('error', function(e) {
+  showLoadError(e.error);
+});
+
+try {
+  render();
+} catch (err) {
+  showLoadError(err);
+}
 </script>
 
 </body>
