@@ -2,3 +2,4 @@
 - [Module 1: Writing Clear, Effective Prompts](/01-prompting/)
 - [Module 2: Getting Started with Cowork](/02-cowork/)
 - [Module 3: Introduction to Agents](/03-agents/)
+- [Final Quiz](quiz.html)
