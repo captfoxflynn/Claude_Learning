@@ -9,3 +9,5 @@ A short, beginner friendly training course on working with Claude. No prior expe
 - [Module 3: Introduction to Agents](03-agents/README.md) — what a basic agent is, a simple real world use case, and safety basics like human review before an agent acts.
 
 Each module has a few short lessons with plain language explanations and examples, a "Try it yourself" section, and an answer key. Work through them in order, or jump to whichever topic you need.
+
+Once you've been through all three modules, test what you've learned with the [final quiz](quiz.html), 12 questions with instant feedback on each answer.
