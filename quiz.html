@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Final Quiz — Claude Learning</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  :root {
+    --accent: #42b983;
+    --accent-dark: #359469;
+    --text: #2c3e50;
+    --muted: #6c7a89;
+    --border: #eaecef;
+    --wrong: #e74c3c;
+    --wrong-bg: #fdecea;
+    --right-bg: #eafaf1;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    color: var(--text);
+    background: #fff;
+    line-height: 1.6;
+  }
+  header {
+    padding: 24px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  header a {
+    color: var(--accent);
+    text-decoration: none;
+    font-size: 14px;
+  }
+  header a:hover { text-decoration: underline; }
+  h1 {
+    font-size: 28px;
+    margin: 12px 0 4px;
+  }
+  .subtitle {
+    color: var(--muted);
+    margin: 0 0 4px;
+    font-size: 15px;
+  }
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 24px 20px 80px;
+  }
+  .progress {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .bar {
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 32px;
+  }
+  .bar-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.25s ease;
+  }
+  .question-card {
+    display: none;
+  }
+  .question-card.active {
+    display: block;
+  }
+  .tag {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--accent-dark);
+    background: var(--right-bg);
+    padding: 3px 9px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  .question-text {
+    font-size: 19px;
+    font-weight: 600;
+    margin: 0 0 20px;
+  }
+  .choices {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .choice {
+    text-align: left;
+    padding: 13px 16px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    font-size: 15px;
+    cursor: pointer;
+    color: var(--text);
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .choice:hover:not(:disabled) {
+    border-color: var(--accent);
+  }
+  .choice:disabled {
+    cursor: default;
+  }
+  .choice.correct {
+    border-color: var(--accent);
+    background: var(--right-bg);
+    font-weight: 600;
+  }
+  .choice.incorrect {
+    border-color: var(--wrong);
+    background: var(--wrong-bg);
+  }
+  .feedback {
+    display: none;
+    padding: 14px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  .feedback.show {
+    display: block;
+  }
+  .feedback.right {
+    background: var(--right-bg);
+    color: var(--accent-dark);
+  }
+  .feedback.wrong {
+    background: var(--wrong-bg);
+    color: #b0362a;
+  }
+  .feedback strong {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 14px;
+  }
+  .next-btn {
+    display: none;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 11px 22px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .next-btn:hover {
+    background: var(--accent-dark);
+  }
+  .next-btn.show {
+    display: inline-block;
+  }
+  .results {
+    display: none;
+    text-align: center;
+    padding-top: 20px;
+  }
+  .results.active {
+    display: block;
+  }
+  .results .score {
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--accent-dark);
+    margin: 12px 0 4px;
+  }
+  .results .score-label {
+    color: var(--muted);
+    margin-bottom: 24px;
+  }
+  .results .summary-line {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    font-size: 14px;
+  }
+  .results .summary-line span.mark {
+    font-weight: 700;
+  }
+  .results .summary-line span.mark.right { color: var(--accent-dark); }
+  .results .summary-line span.mark.wrong { color: var(--wrong); }
+  .retake-btn {
+    margin-top: 28px;
+    background: #fff;
+    color: var(--accent-dark);
+    border: 1px solid var(--accent);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .retake-btn:hover {
+    background: var(--right-bg);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="./#/">&larr; Back to course home</a>
+  <h1>Final Quiz</h1>
+  <p class="subtitle">12 questions covering all three modules. Answer each one to see instant feedback.</p>
+</header>
+
+<main>
+  <div class="progress" id="progress">Question 1 of 12</div>
+  <div class="bar"><div class="bar-fill" id="barFill"></div></div>
+
+  <div id="quizArea"></div>
+
+  <div class="results" id="results">
+    <div class="score" id="scoreText">0 / 12</div>
+    <div class="score-label" id="scoreLabel"></div>
+    <div id="summaryList"></div>
+    <button class="retake-btn" id="retakeBtn">Retake the quiz</button>
+  </div>
+</main>
+
+<script>
+const questions = [
+  {
+    module: "Module 1: Prompting",
+    q: "Which of these prompts is the most specific?",
+    choices: [
+      "Write something about marketing.",
+      "Write a 100 word Instagram caption for a new cold brew coffee launch, aimed at college students, with a playful tone.",
+      "Write marketing copy.",
+      "Tell me about coffee."
+    ],
+    correct: 1,
+    explain: "Specific prompts name the audience, the length, the format, and the tone, so Claude doesn't have to guess."
+  },
+  {
+    module: "Module 1: Prompting",
+    q: "What is 'few shot prompting'?",
+    choices: [
+      "Asking Claude very short questions",
+      "Giving Claude one or two examples of the input and output you want, so it follows the pattern",
+      "Limiting Claude to a few sentences of output",
+      "Asking multiple unrelated questions in one prompt"
+    ],
+    correct: 1,
+    explain: "Few shot prompting means showing Claude an example pair so it can match your pattern, tone, or format."
+  },
+  {
+    module: "Module 1: Prompting",
+    q: "If you care about the exact shape of the output (like a table or bullet list), what should you do?",
+    choices: [
+      "Say nothing and hope Claude guesses right",
+      "State the format directly in your prompt",
+      "Only ask for it after Claude responds",
+      "Avoid asking for structured output entirely"
+    ],
+    correct: 1,
+    explain: "Claude will pick a reasonable default format, but naming the exact format upfront (table, list, JSON, etc.) saves a round trip."
+  },
+  {
+    module: "Module 1: Prompting",
+    q: "Your first draft from Claude is close but not quite right. What's the best next step?",
+    choices: [
+      "Start over with a completely new, longer prompt",
+      "Give up and do it yourself",
+      "Give a short, specific follow up describing exactly what to change",
+      "Repeat the exact same prompt again"
+    ],
+    correct: 2,
+    explain: "Iterating with a targeted follow up (\"make it shorter\", \"more casual tone\") builds on the existing draft instead of starting from scratch."
+  },
+  {
+    module: "Module 2: Cowork",
+    q: "What's the key difference between a regular chat with Claude and using Cowork?",
+    choices: [
+      "Cowork can only answer factual questions",
+      "Cowork can work through multi step tasks on its own, creating and editing files, while you check in on progress",
+      "There is no difference, they're the same thing",
+      "Cowork only works with images"
+    ],
+    correct: 1,
+    explain: "Cowork gives Claude its own workspace to work through several steps and produce real files, more like assigning a task than asking a single question."
+  },
+  {
+    module: "Module 2: Cowork",
+    q: "Before asking Claude to clean up a specific spreadsheet in Cowork, what should you do first?",
+    choices: [
+      "Nothing, just describe the spreadsheet from memory",
+      "Attach the spreadsheet or connect the folder it's in",
+      "Wait for Claude to find it on its own",
+      "Convert it to a PDF first"
+    ],
+    correct: 1,
+    explain: "Cowork needs access to the actual file, either attached directly or through a connected folder, rather than a description of it."
+  },
+  {
+    module: "Module 2: Cowork",
+    q: "Which of these is a good example of delegating a multi step task in one request?",
+    choices: [
+      "\"What's a good color for a logo?\"",
+      "\"Research 3 venues, compare their prices, and write a one page summary I can decide from.\"",
+      "\"Hi\"",
+      "\"Define the word 'venue'.\""
+    ],
+    correct: 1,
+    explain: "This request bundles research, comparison, and document creation into a single clear ask, which is exactly what Cowork is built to handle."
+  },
+  {
+    module: "Module 2: Cowork",
+    q: "What should you do before using output that Claude produced in Cowork?",
+    choices: [
+      "Use it immediately without looking, since Claude is always right",
+      "Review it: check it did what you asked, that facts are accurate, and that it's presented the way you want",
+      "Delete it and start over every time",
+      "Ask a different AI to redo it"
+    ],
+    correct: 1,
+    explain: "Cowork does a lot of the work, but you're still responsible for the final result, so a quick review before using it matters."
+  },
+  {
+    module: "Module 3: Agents",
+    q: "What best describes a basic agent?",
+    choices: [
+      "A chatbot that only replies with text",
+      "Something that looks at a goal, decides on next actions, uses tools to carry them out, and repeats until done",
+      "A search engine",
+      "A static webpage"
+    ],
+    correct: 1,
+    explain: "An agent follows a loop: assess the situation, pick an action, use a tool, check the result, and repeat until the goal is met."
+  },
+  {
+    module: "Module 3: Agents",
+    q: "Which task is a good beginner use case for an agent?",
+    choices: [
+      "Gathering info on 5 coffee shops from multiple sources and compiling a simple list",
+      "Deleting all of your files",
+      "Sending a payment to a stranger",
+      "Guessing a password"
+    ],
+    correct: 0,
+    explain: "Good beginner use cases have a clear goal, a few concrete steps, and low stakes if something needs correcting."
+  },
+  {
+    module: "Module 3: Agents",
+    q: "Why should you review an agent's output before it takes a real world action, like sending an email?",
+    choices: [
+      "You shouldn't, agents are always correct",
+      "Because irreversible or high stakes actions are worth a human check before they happen",
+      "Reviewing wastes time and should be skipped",
+      "Only because it's required by law"
+    ],
+    correct: 1,
+    explain: "The more permanent or high stakes an action is, the more it's worth having a human review the result before it actually happens."
+  },
+  {
+    module: "Module 3: Agents",
+    q: "Which of these requests best builds in a human review step?",
+    choices: [
+      "\"Book the appointment with the top rated plumber right now.\"",
+      "\"Show me the top 3 rated plumbers and I'll tell you which one to book once I've reviewed it.\"",
+      "\"Delete my calendar.\"",
+      "\"Send this email immediately, don't show me first.\""
+    ],
+    correct: 1,
+    explain: "Asking to see the research first, before anything is booked, sent, or purchased, keeps a human in control of the irreversible step."
+  }
+];
+
+let current = 0;
+let score = 0;
+const answers = [];
+
+const quizArea = document.getElementById('quizArea');
+const progress = document.getElementById('progress');
+const barFill = document.getElementById('barFill');
+const results = document.getElementById('results');
+
+function render() {
+  quizArea.innerHTML = '';
+  questions.forEach((item, idx) => {
+    const card = document.createElement('div');
+    card.className = 'question-card' + (idx === current ? ' active' : '');
+    card.id = 'card-' + idx;
+
+    const tag = document.createElement('div');
+    tag.className = 'tag';
+    tag.textContent = item.module;
+    card.appendChild(tag);
+
+    const qText = document.createElement('p');
+    qText.className = 'question-text';
+    qText.textContent = item.q;
+    card.appendChild(qText);
+
+    const choicesDiv = document.createElement('div');
+    choicesDiv.className = 'choices';
+
+    item.choices.forEach((choiceText, cIdx) => {
+      const btn = document.createElement('button');
+      btn.className = 'choice';
+      btn.textContent = choiceText;
+      btn.onclick = () => selectAnswer(idx, cIdx);
+      choicesDiv.appendChild(btn);
+    });
+    card.appendChild(choicesDiv);
+
+    const feedback = document.createElement('div');
+    feedback.className = 'feedback';
+    feedback.id = 'feedback-' + idx;
+    card.appendChild(feedback);
+
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'next-btn';
+    nextBtn.id = 'next-' + idx;
+    nextBtn.textContent = (idx === questions.length - 1) ? 'See my score' : 'Next question';
+    nextBtn.onclick = () => goNext(idx);
+    card.appendChild(nextBtn);
+
+    quizArea.appendChild(card);
+  });
+  updateProgress();
+}
+
+function updateProgress() {
+  progress.textContent = 'Question ' + (current + 1) + ' of ' + questions.length;
+  barFill.style.width = (((current) / questions.length) * 100) + '%';
+}
+
+function selectAnswer(qIdx, cIdx) {
+  if (answers[qIdx] !== undefined) return;
+  answers[qIdx] = cIdx;
+  const item = questions[qIdx];
+  const card = document.getElementById('card-' + qIdx);
+  const buttons = card.querySelectorAll('.choice');
+  buttons.forEach((b) => b.disabled = true);
+
+  const isRight = cIdx === item.correct;
+  if (isRight) {
+    score++;
+    buttons[cIdx].classList.add('correct');
+  } else {
+    buttons[cIdx].classList.add('incorrect');
+    buttons[item.correct].classList.add('correct');
+  }
+
+  const feedback = document.getElementById('feedback-' + qIdx);
+  feedback.classList.add('show', isRight ? 'right' : 'wrong');
+  feedback.innerHTML = '<strong>' + (isRight ? 'Correct.' : 'Not quite.') + '</strong>' + item.explain;
+
+  document.getElementById('next-' + qIdx).classList.add('show');
+}
+
+function goNext(qIdx) {
+  if (qIdx < questions.length - 1) {
+    document.getElementById('card-' + qIdx).classList.remove('active');
+    current = qIdx + 1;
+    document.getElementById('card-' + current).classList.add('active');
+    updateProgress();
+  } else {
+    showResults();
+  }
+}
+
+function showResults() {
+  quizArea.style.display = 'none';
+  document.getElementById('progress').style.display = 'none';
+  document.getElementById('barFill').parentElement.style.display = 'none';
+  results.classList.add('active');
+
+  document.getElementById('scoreText').textContent = score + ' / ' + questions.length;
+  let label;
+  const pct = score / questions.length;
+  if (pct === 1) label = "Perfect score. You've got this.";
+  else if (pct >= 0.75) label = "Solid work, you know this material well.";
+  else if (pct >= 0.5) label = "Good start, worth a re-read of a module or two.";
+  else label = "Worth revisiting the modules before you move on.";
+  document.getElementById('scoreLabel').textContent = label;
+
+  const summaryList = document.getElementById('summaryList');
+  summaryList.innerHTML = '';
+  questions.forEach((item, idx) => {
+    const line = document.createElement('div');
+    line.className = 'summary-line';
+    const isRight = answers[idx] === item.correct;
+    line.innerHTML = '<span>' + (idx + 1) + '. ' + item.q + '</span><span class="mark ' + (isRight ? 'right' : 'wrong') + '">' + (isRight ? 'Correct' : 'Missed') + '</span>';
+    summaryList.appendChild(line);
+  });
+}
+
+document.getElementById('retakeBtn').onclick = () => {
+  current = 0;
+  score = 0;
+  answers.length = 0;
+  results.classList.remove('active');
+  quizArea.style.display = '';
+  document.getElementById('progress').style.display = '';
+  document.getElementById('barFill').parentElement.style.display = '';
+  render();
+};
+
+render();
+</script>
+
+</body>
+</html>
