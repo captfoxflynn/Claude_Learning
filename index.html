@@ -24,16 +24,7 @@
       },
       alias: {
         '/.*/_sidebar.md': '/_sidebar.md'
-      },
-      plugins: [
-        function(hook) {
-          hook.doneEach(function () {
-            var h1 = document.querySelector('.markdown-section h1');
-            var pageTitle = h1 ? h1.textContent.trim() : '';
-            document.title = pageTitle ? pageTitle + ' · Claude Learning' : 'Claude Learning';
-          });
-        }
-      ]
+      }
     }
   </script>
   <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
